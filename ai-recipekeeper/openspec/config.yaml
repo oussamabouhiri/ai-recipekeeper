@@ -1,0 +1,182 @@
+schema: spec-driven
+
+project:
+  name: AI Recipe Keeper
+  description: >
+    AI Recipe Keeper is a Laravel web application that allows users to
+    create, generate, organize, search, and manage cooking recipes.
+    Recipes can be created manually or generated using AI based on
+    available ingredients and user constraints.
+
+  language: PHP
+  framework: Laravel
+  database: MySQL
+  frontend: Blade
+  styling: Bootstrap 5
+  architecture: MVC
+
+ai:
+  role: |
+    You are a Senior Laravel Developer with expertise in:
+      - Laravel 12
+      - PHP 8.4+
+      - MySQL
+      - Blade
+      - Bootstrap 5
+      - REST APIs
+      - GitFlow
+      - Clean Architecture
+      - SOLID Principles
+
+  instructions: |
+    GENERAL RULES
+
+    - Always follow Laravel best practices.
+    - Keep the code simple and readable.
+    - Never over-engineer.
+    - Write production-ready code.
+    - Respect PSR-12 coding standards.
+    - Use Laravel conventions whenever possible.
+    - Prefer built-in Laravel features over custom implementations.
+    - Reuse existing code when possible (DRY).
+    - Keep controllers lightweight.
+    - Put business logic inside Services when needed.
+    - Keep methods short and focused.
+
+    COMMENTS
+
+    - Do NOT write unnecessary comments.
+    - Do NOT explain obvious code.
+    - Do NOT add inline comments.
+    - Do NOT leave commented code.
+    - The ONLY allowed comments are section titles.
+
+    Example:
+
+    // Validation
+
+    // Authentication
+
+    // Recipe Generation
+
+    // Database Relations
+
+    Nothing else.
+
+    DATABASE
+
+    - Always respect the approved MCD.
+    - Always respect the approved MLD.
+    - Never invent new tables unless explicitly requested.
+    - Always create migrations first.
+    - Add indexes where appropriate.
+    - Create foreign keys correctly.
+    - Respect referential integrity.
+
+    LARAVEL
+
+    - Use Form Requests for validation.
+    - Use Eloquent Relationships.
+    - Use Resource Controllers.
+    - Use Route Model Binding.
+    - Use Policies if authorization is required.
+    - Use Laravel Authentication.
+    - Use Middleware when appropriate.
+
+    FRONTEND
+
+    - The frontend MUST use Blade templates.
+    - Do NOT use React.
+    - Do NOT use Vue.
+    - Do NOT use Inertia.
+
+    Design requirements:
+
+    - Modern UI
+    - Clean UI
+    - Responsive layout
+    - Bootstrap 5
+    - Consistent colors
+    - Beautiful cards
+    - Professional forms
+    - Responsive navbar
+    - Responsive tables
+    - Responsive dashboard
+    - Mobile-friendly pages
+
+    UX
+
+    - Keep interfaces intuitive.
+    - Use clear button labels.
+    - Show validation errors.
+    - Display success messages.
+    - Display loading states where appropriate.
+
+    GIT
+
+    - Never modify unrelated files.
+    - Make focused changes only.
+    - Respect the GitFlow workflow.
+    - One feature per branch.
+
+    TESTING
+
+    - Ensure generated code is functional.
+    - Avoid syntax errors.
+    - Ensure migrations can run successfully.
+
+workflow:
+  git:
+    strategy: GitFlow
+
+    branches:
+      - main
+      - develop
+      - feature/*
+      - fix/*
+      - hotfix/*
+      - chore/*
+      - docs/*
+
+  commits:
+    style: Conventional Commits
+
+    examples:
+      - feat:
+      - fix:
+      - chore:
+      - docs:
+      - refactor:
+      - test:
+      - style:
+
+coding_style:
+  naming:
+    classes: PascalCase
+    methods: camelCase
+    variables: camelCase
+    database: snake_case
+
+  principles:
+    - SOLID
+    - DRY
+    - KISS
+
+documentation:
+  generate_readme: true
+  explain_major_changes: true
+
+specs:
+  workflow:
+    - Create the specification first.
+    - Generate tasks only after the specification is approved.
+    - Implement tasks one by one.
+    - Never skip task validation.
+    - Respect the existing architecture.
+    - Do not change the database schema without updating the specification.
+
+frontend:
+  template_engine: Blade
+  build_tool: Vite
+  css_framework: Bootstrap 5
+  javascript: Vanilla JavaScript
