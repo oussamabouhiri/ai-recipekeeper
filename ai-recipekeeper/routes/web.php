@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AvisWebController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriWebController;
 use App\Http\Controllers\RecipeWebController;
@@ -29,6 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/favorites', [FavoriWebController::class, 'index'])->name('favorites.index');
     Route::post('/favorites', [FavoriWebController::class, 'store'])->name('favorites.store');
     Route::delete('/favorites/{favori}', [FavoriWebController::class, 'destroy'])->name('favorites.destroy');
+
+    Route::post('/recipes/{recipe}/reviews', [AvisWebController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{avis}', [AvisWebController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{avis}', [AvisWebController::class, 'destroy'])->name('reviews.destroy');
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin', fn () => view('admin.index'))->name('admin.index');

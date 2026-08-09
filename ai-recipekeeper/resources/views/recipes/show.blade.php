@@ -142,6 +142,114 @@
     </div>
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">Reviews</h2>
+            @if ($ratingAvg !== null)
+                <span class="text-muted">{{ $ratingAvg }} / 5 &middot; {{ $ratingCount }} {{ Str::plural('review', $ratingCount) }}</span>
+            @else
+                <span class="text-muted">No reviews yet</span>
+            @endif
+        </div>
+
+        @if ($userReview)
+            <div class="border rounded p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>{{ $userReview->user->name }}</strong>
+                        <div class="text-warning">{{ $userReview->rating }}/5</div>
+                        @if ($userReview->comment)
+                            <p class="mb-0">{{ $userReview->comment }}</p>
+                        @endif
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#editReviewForm">Edit Review</button>
+                        <form action="{{ route('reviews.destroy', $userReview) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete Review</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="collapse mt-3" id="editReviewForm">
+                    <form action="{{ route('reviews.update', $userReview) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="mb-2">
+                            <label class="form-label" for="edit-rating">Rating</label>
+                            <select name="rating" id="edit-rating" class="form-select">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <option value="{{ $i }}" @selected($userReview->rating === $i)>{{ $i }}</option>
+                                @endfor
+                            </select>
+                            @error('rating')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" for="edit-comment">Comment</label>
+                            <textarea name="comment" id="edit-comment" class="form-control" rows="2">{{ old('comment', $userReview->comment) }}</textarea>
+                            @error('comment')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Update Review</button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <form action="{{ route('reviews.store', $recipe) }}" method="POST" class="mb-3">
+                @csrf
+                <div class="mb-2">
+                    <label class="form-label" for="rating">Rating</label>
+                    <select name="rating" id="rating" class="form-select">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <option value="{{ $i }}">{{ $i }}</option>
+                        @endfor
+                    </select>
+                    @error('rating')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="comment">Comment</label>
+                    <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="Share your thoughts (optional)"></textarea>
+                    @error('comment')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        @endif
+
+        @foreach ($recipe->avis as $review)
+            @if ($userReview && $review->id === $userReview->id)
+                @continue
+            @endif
+            <div class="border-top pt-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>{{ $review->user->name }}</strong>
+                        <span class="text-muted small">&middot; {{ $review->created_at->format('M d, Y') }}</span>
+                        <div class="text-warning">{{ $review->rating }}/5</div>
+                        @if ($review->comment)
+                            <p class="mb-0">{{ $review->comment }}</p>
+                        @endif
+                    </div>
+                    @can('delete', $review)
+                        <form action="{{ route('reviews.destroy', $review) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete Review</button>
+                        </form>
+                    @endcan
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
+
 @can('delete', $recipe)
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
