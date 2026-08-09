@@ -117,6 +117,19 @@
                 <h5 class="card-title">Actions</h5>
                 <div class="d-grid gap-2">
                     <a href="{{ route('recipes.index') }}" class="btn btn-outline-secondary">Back to Recipes</a>
+                    @if ($favorite)
+                        <form action="{{ route('favorites.destroy', $favorite) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-warning w-100">Remove from Favorites</button>
+                        </form>
+                    @else
+                        <form action="{{ route('favorites.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="recette_id" value="{{ $recipe->id }}">
+                            <button type="submit" class="btn btn-outline-warning w-100">Add to Favorites</button>
+                        </form>
+                    @endif
                     @can('update', $recipe)
                         <a href="{{ route('recipes.edit', $recipe) }}" class="btn btn-warning">Edit Recipe</a>
                     @endcan

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -39,5 +40,25 @@ class AdminAccessTest extends TestCase
     {
         $this->assertTrue(User::factory()->admin()->create()->isAdmin());
         $this->assertFalse(User::factory()->create()->isAdmin());
+    }
+
+    public function test_admin_can_access_category_management_pages(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $category = Category::factory()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.categories.index'))
+            ->assertOk()
+            ->assertSee($category->name);
+
+        $this->actingAs($admin)
+            ->get(route('admin.categories.create'))
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get(route('admin.categories.edit', $category))
+            ->assertOk()
+            ->assertSee($category->name);
     }
 }

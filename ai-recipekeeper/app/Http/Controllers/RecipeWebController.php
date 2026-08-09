@@ -16,6 +16,7 @@ use Illuminate\View\View;
 class RecipeWebController extends Controller
 {
     use AuthorizesRequests;
+
     public function index(Request $request): View
     {
         $recipes = Recette::query()
@@ -62,7 +63,9 @@ class RecipeWebController extends Controller
             ->with(['user', 'etapes', 'ingredients', 'categories'])
             ->findOrFail($recipe->id);
 
-        return view('recipes.show', compact('recipe'));
+        $favorite = $request->user()->favoris()->where('recette_id', $recipe->id)->first();
+
+        return view('recipes.show', compact('recipe', 'favorite'));
     }
 
     public function edit(Recette $recipe): View

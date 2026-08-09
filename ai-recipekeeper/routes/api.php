@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavoriController;
 use App\Http\Controllers\RecetteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,4 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/categories', [CategoryController::class, 'store'])->name('api.categories.store');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('api.categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('api.categories.destroy');
+
+    Route::get('/favorites', [FavoriController::class, 'index'])->name('api.favorites.index');
+    Route::post('/favorites', [FavoriController::class, 'store'])->name('api.favorites.store');
+    Route::delete('/favorites/{favori}', [FavoriController::class, 'destroy'])->name('api.favorites.destroy');
 });
