@@ -60,12 +60,17 @@ class RecipeWebController extends Controller
     {
         $recipe = Recette::query()
             ->visibleTo($request->user())
-            ->with(['user', 'etapes', 'ingredients', 'categories'])
+            ->with(['user', 'etapes', 'ingredients', 'categories', 'avis.user:id,name'])
             ->findOrFail($recipe->id);
 
         $favorite = $request->user()->favoris()->where('recette_id', $recipe->id)->first();
+        $userReview = $recipe->avis->firstWhere('user_id', $request->user()->id);
 
-        return view('recipes.show', compact('recipe', 'favorite'));
+        $ratingAvg = $recipe->avis->avg('rating');
+        $ratingAvg = $ratingAvg === null ? null : round((float) $ratingAvg, 1);
+        $ratingCount = $recipe->avis->count();
+
+        return view('recipes.show', compact('recipe', 'favorite', 'userReview', 'ratingAvg', 'ratingCount'));
     }
 
     public function edit(Recette $recipe): View

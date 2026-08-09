@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AvisController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriController;
 use App\Http\Controllers\RecetteController;
@@ -8,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/recipes', [RecetteController::class, 'index'])->name('api.recipes.index');
 Route::get('/recipes/{recipe}', [RecetteController::class, 'show'])->name('api.recipes.show');
+Route::get('/recipes/{recipe}/reviews', [AvisController::class, 'index'])->name('api.reviews.index');
 
 Route::get('/categories', [CategoryController::class, 'index'])->name('api.categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('api.categories.show');
@@ -38,4 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites', [FavoriController::class, 'index'])->name('api.favorites.index');
     Route::post('/favorites', [FavoriController::class, 'store'])->name('api.favorites.store');
     Route::delete('/favorites/{favori}', [FavoriController::class, 'destroy'])->name('api.favorites.destroy');
+
+    Route::post('/recipes/{recipe}/reviews', [AvisController::class, 'store'])->name('api.reviews.store');
+    Route::put('/reviews/{avis}', [AvisController::class, 'update'])->name('api.reviews.update');
+    Route::delete('/reviews/{avis}', [AvisController::class, 'destroy'])->name('api.reviews.destroy');
 });
