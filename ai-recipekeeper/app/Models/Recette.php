@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,12 +16,12 @@ class Recette extends Model
     protected $fillable = [
         'title',
         'description',
-        'instructions',
         'prep_time',
         'cook_time',
         'servings',
         'difficulty',
         'image_path',
+        'statut',
         'user_id',
         'is_ai_generated',
     ];
@@ -35,6 +36,26 @@ class Recette extends Model
         ];
     }
 
+    public function scopeVisibleTo(Builder $query, ?User $user): Builder
+    {
+        if ($user?->isAdmin()) {
+            return $query;
+        }
+
+        $query->where(function (Builder $q) use ($user) {
+            $q->where('statut', 'published');
+
+            if ($user !== null) {
+                $q->orWhere(function (Builder $owner) use ($user) {
+                    $owner->where('statut', 'hidden')
+                        ->where('user_id', $user->id);
+                });
+            }
+        });
+
+        return $query;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -47,7 +68,8 @@ class Recette extends Model
 
     public function ingredients(): BelongsToMany
     {
-        return $this->belongsToMany(Ingredient::class, 'recette_ingredient', 'recette_id', 'ingredient_id');
+        return $this->belongsToMany(Ingredient::class, 'recette_ingredient', 'recette_id', 'ingredient_id')
+            ->withPivot('quantity', 'unit');
     }
 
     public function etapes(): HasMany
