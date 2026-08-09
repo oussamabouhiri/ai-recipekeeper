@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\RecipeWebController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,7 +18,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    Route::resource('recipes', RecipeWebController::class)->except(['show']);
+    Route::get('/recipes/{recipe}', [RecipeWebController::class, 'show'])->name('recipes.show');
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin', fn () => view('admin.index'))->name('admin.index');
