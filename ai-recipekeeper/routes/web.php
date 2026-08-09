@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavoriWebController;
 use App\Http\Controllers\RecipeWebController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +25,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('recipes', RecipeWebController::class)->except(['show']);
     Route::get('/recipes/{recipe}', [RecipeWebController::class, 'show'])->name('recipes.show');
+
+    Route::get('/favorites', [FavoriWebController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites', [FavoriWebController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{favori}', [FavoriWebController::class, 'destroy'])->name('favorites.destroy');
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin', fn () => view('admin.index'))->name('admin.index');
