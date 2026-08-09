@@ -91,7 +91,7 @@ class AuthenticationTest extends TestCase
         $this->post(route('login'), [
             'email' => 'jane@example.com',
             'password' => 'password123',
-        ])->assertRedirect('/');
+        ])->assertRedirect('/dashboard');
 
         $this->assertAuthenticatedAs($user);
     }
