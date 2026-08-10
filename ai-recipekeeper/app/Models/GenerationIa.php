@@ -36,6 +36,28 @@ class GenerationIa extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function getRecette(): ?Recette
+    {
+        $recipeId = $this->getRecipeId();
+
+        if ($recipeId === null) {
+            return null;
+        }
+
+        return Recette::find($recipeId);
+    }
+
+    public function getRecipeId(): ?int
+    {
+        if ($this->response === null) {
+            return null;
+        }
+
+        $data = json_decode($this->response, true);
+
+        return $data['recipe_id'] ?? null;
+    }
+
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
