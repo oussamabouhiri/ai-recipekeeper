@@ -3,6 +3,7 @@
 use App\Http\Controllers\AvisController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriController;
+use App\Http\Controllers\GenerationController;
 use App\Http\Controllers\RecetteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,4 +45,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/recipes/{recipe}/reviews', [AvisController::class, 'store'])->name('api.reviews.store');
     Route::put('/reviews/{avis}', [AvisController::class, 'update'])->name('api.reviews.update');
     Route::delete('/reviews/{avis}', [AvisController::class, 'destroy'])->name('api.reviews.destroy');
+
+    Route::post('/generate', [GenerationController::class, 'store'])->name('api.generations.store');
+    Route::get('/generations', [GenerationController::class, 'index'])->name('api.generations.index');
+    Route::get('/generations/{generation}', [GenerationController::class, 'show'])->name('api.generations.show');
 });
