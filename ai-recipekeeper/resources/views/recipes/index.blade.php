@@ -5,7 +5,10 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">My Recipes</h1>
-    <a href="{{ route('recipes.create') }}" class="btn btn-success">Create Recipe</a>
+    <div>
+        <a href="{{ route('generations.create') }}" class="btn btn-primary me-2">Generate with AI</a>
+        <a href="{{ route('recipes.create') }}" class="btn btn-success">Create Recipe</a>
+    </div>
 </div>
 
 @if ($recipes->isEmpty())

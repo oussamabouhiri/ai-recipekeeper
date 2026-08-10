@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AvisWebController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriWebController;
+use App\Http\Controllers\GenerationWebController;
 use App\Http\Controllers\RecipeWebController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('recipes', RecipeWebController::class)->except(['show']);
     Route::get('/recipes/{recipe}', [RecipeWebController::class, 'show'])->name('recipes.show');
+
+    Route::get('/generations/create', [GenerationWebController::class, 'create'])->name('generations.create');
+    Route::post('/generations', [GenerationWebController::class, 'store'])->name('generations.store');
+    Route::get('/generations/{generation}', [GenerationWebController::class, 'show'])->name('generations.show');
 
     Route::get('/favorites', [FavoriWebController::class, 'index'])->name('favorites.index');
     Route::post('/favorites', [FavoriWebController::class, 'store'])->name('favorites.store');
