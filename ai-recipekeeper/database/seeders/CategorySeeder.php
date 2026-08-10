@@ -16,6 +16,12 @@ class CategorySeeder extends Seeder
             ['name' => 'Boisson', 'description' => 'Boissons et cocktails'],
             ['name' => 'Végétarien', 'description' => 'Recettes sans viande ni poisson'],
             ['name' => 'Rapide', 'description' => 'Recettes en moins de 30 minutes'],
+            ['name' => 'Entrées froides', 'description' => 'Hors-d\'œuvres et entrées servies froides'],
+            ['name' => 'Soupes', 'description' => 'Potages et crèmes veloutées'],
+            ['name' => 'Salades', 'description' => 'Salades composées et vertes'],
+            ['name' => 'Pâtisseries', 'description' => 'Gâteaux, tartes et douceurs'],
+            ['name' => 'Accompagnements', 'description' => 'Garnitures et côtés'],
+            ['name' => 'Plats de résistance', 'description' => 'Grands plats pour les occasions spéciales'],
         ];
 
         foreach ($categories as $category) {
