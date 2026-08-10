@@ -24,6 +24,9 @@
                         <a class="nav-link" href="{{ route('recipes.index') }}">Recipes</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('generations.create') }}">Generate with AI</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('favorites.index') }}">My Favorites</a>
                     </li>
                 </ul>
