@@ -20,7 +20,7 @@ class StoreRecetteRequest extends FormRequest
             'cook_time' => ['nullable', 'integer', 'min:0'],
             'servings' => ['nullable', 'integer', 'min:1'],
             'difficulty' => ['nullable', 'string'],
-            'image_path' => ['nullable', 'string'],
+            'image_path' => ['nullable', 'image', 'max:2048'],
             'statut' => ['sometimes', 'in:published,hidden'],
             'etapes' => ['sometimes', 'array'],
             'etapes.*' => ['array'],
