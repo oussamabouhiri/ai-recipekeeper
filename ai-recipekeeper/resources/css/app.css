@@ -6,4 +6,73 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-background: #f9f9ff;
+    --color-tertiary-fixed-dim: #ffb59e;
+    --color-on-tertiary-fixed: #390b00;
+    --color-tertiary: #964327;
+    --color-on-secondary: #ffffff;
+    --color-on-secondary-fixed-variant: #614000;
+    --color-error: #ba1a1a;
+    --color-outline-variant: #c1c9bd;
+    --color-surface-variant: #dce2f3;
+    --color-on-surface-variant: #42493f;
+    --color-surface-container-low: #f0f3ff;
+    --color-on-secondary-fixed: #291800;
+    --color-on-primary-fixed: #002105;
+    --color-on-background: #151c27;
+    --color-primary-container: #4f804f;
+    --color-on-tertiary: #ffffff;
+    --color-surface: #f9f9ff;
+    --color-tertiary-container: #b55b3d;
+    --color-on-primary-fixed-variant: #215025;
+    --color-secondary-fixed-dim: #f6bc64;
+    --color-primary-fixed: #baf0b6;
+    --color-on-tertiary-fixed-variant: #7a2f15;
+    --color-on-error: #ffffff;
+    --color-primary: #376638;
+    --color-secondary-container: #ffc56c;
+    --color-on-error-container: #93000a;
+    --color-on-primary-container: #f7fff1;
+    --color-on-secondary-container: #785000;
+    --color-surface-container-high: #e2e8f8;
+    --color-tertiary-fixed: #ffdbd0;
+    --color-on-surface: #151c27;
+    --color-surface-container: #e7eefe;
+    --color-outline: #72796f;
+    --color-secondary-fixed: #ffddb0;
+    --color-primary-fixed-dim: #9fd49b;
+    --color-inverse-surface: #2a313d;
+    --color-surface-tint: #39693b;
+    --color-surface-container-highest: #dce2f3;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-dim: #d3daea;
+    --color-on-tertiary-container: #fffbff;
+    --color-surface-bright: #f9f9ff;
+    --color-error-container: #ffdad6;
+    --color-secondary: #805600;
+    --color-inverse-primary: #9fd49b;
+    --color-on-primary: #ffffff;
+    --color-inverse-on-surface: #ebf1ff;
+
+    --font-headline-md: 'Playfair Display', serif;
+    --font-label-md: 'Inter', sans-serif;
+    --font-headline-lg: 'Playfair Display', serif;
+    --font-caption: 'Inter', sans-serif;
+    --font-display-lg: 'Playfair Display', serif;
+    --font-body-lg: 'Inter', sans-serif;
+    --font-body-md: 'Inter', sans-serif;
+
+    --text-headline-md: 24px;
+    --text-label-md: 14px;
+    --text-headline-lg: 32px;
+    --text-caption: 12px;
+    --text-body-lg: 18px;
+    --text-body-md: 16px;
+}
+
+@layer utilities {
+    .auth-shadow {
+        box-shadow: 0 4px 20px -2px rgba(55, 102, 56, 0.08), 0 0 3px rgba(55, 102, 56, 0.04);
+    }
 }

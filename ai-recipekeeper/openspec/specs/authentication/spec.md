@@ -33,6 +33,21 @@ The system SHALL allow existing users to log in with their email and password us
 - **WHEN** a user submits invalid credentials
 - **THEN** the system shows an authentication error and does not start a session
 
+#### Scenario: Login form renders correctly
+- **WHEN** a guest navigates to `/login`
+- **THEN** the system renders the login page with email field, password field, remember checkbox, CSRF token, and validation error display
+
+### Requirement: Root route redirect by authentication state
+The system SHALL redirect visitors at the root URL (`/`) based on their authentication state.
+
+#### Scenario: Guest visitor at root redirects to login
+- **WHEN** an unauthenticated visitor navigates to `/`
+- **THEN** the system redirects to `/login`
+
+#### Scenario: Authenticated user at root redirects to dashboard
+- **WHEN** an authenticated user navigates to `/`
+- **THEN** the system redirects to `/dashboard`
+
 ### Requirement: Web logout
 The system SHALL allow authenticated web users to log out.
 
