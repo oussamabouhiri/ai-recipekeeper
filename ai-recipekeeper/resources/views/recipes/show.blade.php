@@ -116,7 +116,7 @@
             <div class="card-body">
                 <h5 class="card-title">Actions</h5>
                 <div class="d-grid gap-2">
-                    <a href="{{ route('recipes.index') }}" class="btn btn-outline-secondary">Back to Recipes</a>
+                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Back</a>
                     @if ($favorite)
                         <form action="{{ route('favorites.destroy', $favorite) }}" method="POST">
                             @csrf

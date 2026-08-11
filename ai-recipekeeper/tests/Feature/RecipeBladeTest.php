@@ -29,7 +29,7 @@ class RecipeBladeTest extends TestCase
     public function test_authenticated_user_can_see_recipe_list(): void
     {
         $user = User::factory()->create();
-        $published = Recette::factory()->create(['statut' => 'published']);
+        $published = Recette::factory()->create(['statut' => 'published', 'user_id' => $user->id]);
         $hidden = Recette::factory()->hidden()->create(['user_id' => $user->id]);
 
         $this->actingAs($user)

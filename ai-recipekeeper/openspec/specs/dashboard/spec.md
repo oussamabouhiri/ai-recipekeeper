@@ -96,15 +96,15 @@ The system SHALL provide an AI-related area on the dashboard that routes users i
 - **THEN** the dashboard does not submit to the generation endpoint with data the backend cannot accept, and does not display fake generation results
 
 ### Requirement: Dashboard navigation
-The system SHALL provide desktop top navigation and mobile bottom navigation where every link uses an existing route.
+The system SHALL provide desktop top navigation and mobile bottom navigation where every link uses an existing route, including a link to the browse recipes page.
 
 #### Scenario: Desktop navigation links
 - **WHEN** an authenticated user views the dashboard on a desktop viewport
-- **THEN** the top navigation shows the application brand, Dashboard, Recipes, Generate with AI, and My Favorites links to their existing routes, plus a Create Recipe action linking to `/recipes/create`
+- **THEN** the top navigation shows the application brand, Dashboard, Browse (linking to `/browse`), Recipes (linking to `/recipes`), Generate with AI, and My Favorites links to their existing routes, plus a Create Recipe action linking to `/recipes/create`
 
 #### Scenario: Mobile bottom navigation
 - **WHEN** an authenticated user views the dashboard on a mobile viewport
-- **THEN** the system displays a fixed bottom navigation with Dashboard, Recipes, AI Generator, and Favorites items linking to their existing routes
+- **THEN** the system displays a fixed bottom navigation with Dashboard, Browse (linking to `/browse`), AI Generator, and Favorites items linking to their existing routes
 
 #### Scenario: User identity and logout
 - **WHEN** an authenticated user views the dashboard

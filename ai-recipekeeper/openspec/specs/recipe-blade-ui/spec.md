@@ -7,7 +7,7 @@ Provides a Blade-based web interface for authenticated users to create, browse, 
 ## Requirements
 
 ### Requirement: Authenticated app layout
-The system SHALL provide a shared authenticated layout (`layouts/app.blade.php`) with a responsive navbar, the authenticated user's name, and navigation links to the dashboard and recipe list.
+The system SHALL provide a shared authenticated layout (`layouts/app.blade.php`) with a responsive navbar, the authenticated user's name, and navigation links to the dashboard, browse recipes, and recipe list.
 
 #### Scenario: Layout renders for authenticated user
 - **WHEN** an authenticated user navigates to any recipe page

@@ -1,0 +1,180 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Browse Recipes')
+
+@section('content')
+    {{-- Header --}}
+    <section class="flex flex-col md:flex-row gap-4 md:items-end justify-between">
+        <div class="max-w-2xl flex flex-col gap-1">
+            <h1 class="font-headline-lg text-[28px] leading-[36px] md:text-[32px] md:leading-[40px] text-on-surface">Discover Your Next Meal</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Explore a world of flavors tailored to your taste and pantry.</p>
+        </div>
+        <a href="{{ route('generations.create') }}" class="bg-primary text-on-primary font-label-md text-label-md py-3 px-6 rounded-lg hover:bg-surface-tint shadow-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            Generate with AI
+        </a>
+    </section>
+
+    {{-- Search & Filter --}}
+    <section class="flex flex-col gap-4 bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20">
+        <form method="GET" action="{{ route('recipes.browse') }}" class="w-full max-w-2xl">
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ old('search', $search) }}"
+                    placeholder="Search recipes, ingredients, or cuisines..."
+                    class="w-full pl-12 pr-4 py-3 bg-background border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 transition-colors shadow-sm"
+                >
+            </div>
+        </form>
+
+        <div class="flex flex-wrap gap-2 items-center">
+            <span class="font-label-md text-label-md text-on-surface-variant mr-1">Categories:</span>
+
+            @php
+                $allParams = request()->query();
+                unset($allParams['category']);
+            @endphp
+
+            <a
+                href="{{ route('recipes.browse', $allParams) }}"
+                class="px-4 py-1.5 rounded-full font-label-md text-label-md transition-colors shadow-sm
+                    {{ !request('category') ? 'bg-primary/10 border border-primary text-primary' : 'border border-outline-variant/50 text-on-surface-variant bg-background hover:border-primary hover:text-primary' }}"
+            >
+                All
+            </a>
+
+            @foreach ($categories as $category)
+                @php
+                    $categoryParams = array_merge($allParams, ['category' => $category->id]);
+                @endphp
+                <a
+                    href="{{ route('recipes.browse', $categoryParams) }}"
+                    class="px-4 py-1.5 rounded-full font-label-md text-label-md transition-colors shadow-sm
+                        {{ request('category') == $category->id ? 'bg-primary/10 border border-primary text-primary' : 'border border-outline-variant/50 text-on-surface-variant bg-background hover:border-primary hover:text-primary' }}"
+                >
+                    {{ $category->name }}
+                </a>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- Recipe Grid --}}
+    @if ($recipes->isEmpty())
+        <div class="bg-surface-container-lowest rounded-xl border border-dashed border-outline-variant/50 p-10 text-center flex flex-col items-center gap-4">
+            <span class="material-symbols-outlined text-on-surface-variant/50" style="font-size: 48px;">restaurant</span>
+            <div>
+                <h2 class="font-headline-md text-headline-md text-on-surface mb-2">
+                    {{ request('search') || request('category') ? 'No recipes found' : 'No recipes yet' }}
+                </h2>
+                <p class="font-body-md text-body-md text-on-surface-variant">
+                    @if (request('search') || request('category'))
+                        Try adjusting your search or filters.
+                    @else
+                        Create your first recipe or generate one with AI.
+                    @endif
+                </p>
+            </div>
+            <div class="flex gap-3">
+                @if (request('search') || request('category'))
+                    <a href="{{ route('recipes.browse') }}" class="bg-primary text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg hover:bg-surface-tint shadow-sm transition-all duration-200">
+                        Clear Filters
+                    </a>
+                @endif
+                <a href="{{ route('recipes.create') }}" class="bg-transparent border border-primary text-primary font-label-md text-label-md py-2 px-4 rounded-lg hover:bg-surface-container-low transition-all duration-200">
+                    Create Recipe
+                </a>
+            </div>
+        </div>
+    @else
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @foreach ($recipes as $recipe)
+                <article class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow group">
+                    {{-- Image Area --}}
+                    <div class="relative w-full aspect-[3/2] overflow-hidden bg-surface-container-high">
+                        @if ($recipe->image_path && file_exists(public_path($recipe->image_path)))
+                            <img src="{{ asset($recipe->image_path) }}" alt="{{ $recipe->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-on-surface-variant/50">
+                                <span class="material-symbols-outlined" style="font-size: 48px;">restaurant</span>
+                            </div>
+                        @endif
+
+                        {{-- Difficulty Badge --}}
+                        @if ($recipe->difficulty)
+                            <div class="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-md border border-outline-variant/30 flex items-center gap-1 shadow-sm">
+                                <span class="w-2 h-2 rounded-full
+                                    {{ $recipe->difficulty === 'Facile' ? 'bg-primary' : ($recipe->difficulty === 'Moyen' ? 'bg-secondary' : 'bg-error') }}"></span>
+                                <span class="font-caption text-caption text-on-surface">{{ $recipe->difficulty }}</span>
+                            </div>
+                        @endif
+
+                        {{-- Favorite Button --}}
+                        @auth
+                            @if (isset($favoriteMap[$recipe->id]))
+                                <form action="{{ route('favorites.destroy', $favoriteMap[$recipe->id]) }}" method="POST" class="absolute top-3 right-3" onclick="event.stopPropagation(); event.preventDefault(); this.submit();">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-8 h-8 bg-surface-container-lowest/90 backdrop-blur-sm rounded-full flex items-center justify-center text-error shadow-sm hover:bg-surface-container-lowest transition-colors" title="Remove from favorites">
+                                        <span class="material-symbols-outlined fill" style="font-size: 20px;">favorite</span>
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('favorites.store') }}" method="POST" class="absolute top-3 right-3" onclick="event.stopPropagation(); event.preventDefault(); this.submit();">
+                                    @csrf
+                                    <input type="hidden" name="recette_id" value="{{ $recipe->id }}">
+                                    <input type="hidden" name="redirect" value="{{ route('recipes.browse', request()->query()) }}">
+                                    <button type="submit" class="w-8 h-8 bg-surface-container-lowest/90 backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface-variant hover:text-error transition-colors shadow-sm" title="Add to favorites">
+                                        <span class="material-symbols-outlined" style="font-size: 20px;">favorite</span>
+                                    </button>
+                                </form>
+                            @endif
+                        @endauth
+                    </div>
+
+                    {{-- Content --}}
+                    <div class="p-5 flex flex-col gap-3 flex-grow">
+                        <div class="flex flex-col gap-1">
+                            <h2 class="font-headline-md text-headline-md text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                <a href="{{ route('recipes.show', $recipe) }}" class="hover:text-primary transition-colors">{{ $recipe->title }}</a>
+                            </h2>
+                            @if ($recipe->description)
+                                <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">{{ $recipe->description }}</p>
+                            @endif
+                        </div>
+
+                        {{-- Metadata --}}
+                        <div class="mt-auto pt-3 border-t border-outline-variant/20 flex justify-between items-center text-on-surface-variant font-caption text-caption">
+                            @if ($recipe->prep_time)
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                    {{ $recipe->prep_time }}m
+                                </div>
+                            @endif
+                            @if ($recipe->cook_time)
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">local_fire_department</span>
+                                    {{ $recipe->cook_time }}m
+                                </div>
+                            @endif
+                            @if ($recipe->servings)
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">group</span>
+                                    {{ $recipe->servings }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                </article>
+            @endforeach
+        </section>
+
+        {{-- Pagination --}}
+        <div class="flex justify-center">
+            {{ $recipes->links() }}
+        </div>
+    @endif
+@endsection

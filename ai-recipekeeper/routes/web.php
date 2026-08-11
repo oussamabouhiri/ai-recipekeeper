@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
+    Route::get('/browse', [RecipeWebController::class, 'browse'])->name('recipes.browse');
+
     Route::resource('recipes', RecipeWebController::class)->except(['show']);
     Route::get('/recipes/{recipe}', [RecipeWebController::class, 'show'])->name('recipes.show');
 

@@ -18,8 +18,9 @@
             <div class="flex items-center gap-6">
                 <a href="{{ route('dashboard') }}" class="font-headline-md text-headline-md font-bold text-primary">AI Recipe Keeper</a>
                 <nav class="flex items-center gap-6 ml-8 font-body-md text-body-md" aria-label="Main navigation">
-                    <a href="{{ route('dashboard') }}" class="text-primary font-bold border-b-2 border-primary pb-1">Dashboard</a>
-                    <a href="{{ route('recipes.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">Recipes</a>
+                    <a href="{{ route('dashboard') }}" class="text-on-surface-variant hover:text-primary transition-colors">Dashboard</a>
+                    <a href="{{ route('recipes.browse') }}" class="text-on-surface-variant hover:text-primary transition-colors">Browse</a>
+                    <a href="{{ route('recipes.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">My Recipes</a>
                     <a href="{{ route('generations.create') }}" class="text-on-surface-variant hover:text-primary transition-colors">Generate with AI</a>
                     <a href="{{ route('favorites.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">My Favorites</a>
                 </nav>
@@ -55,7 +56,8 @@
             <div class="font-headline-md text-headline-md text-primary">AI Recipe Keeper</div>
             <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 font-caption text-caption" aria-label="Footer navigation">
                 <a href="{{ route('dashboard') }}" class="text-on-surface-variant hover:text-primary transition-colors">Dashboard</a>
-                <a href="{{ route('recipes.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">Recipes</a>
+                <a href="{{ route('recipes.browse') }}" class="text-on-surface-variant hover:text-primary transition-colors">Browse</a>
+                <a href="{{ route('recipes.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">My Recipes</a>
                 <a href="{{ route('generations.create') }}" class="text-on-surface-variant hover:text-primary transition-colors">Generate with AI</a>
                 <a href="{{ route('favorites.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">My Favorites</a>
             </nav>
@@ -67,13 +69,13 @@
 
     <nav class="md:hidden fixed bottom-0 w-full z-50 border-t border-outline-variant/30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] bg-surface/90 backdrop-blur-lg px-2 py-3" aria-label="Mobile navigation">
         <div class="flex justify-around items-center max-w-md mx-auto w-full">
-            <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 transition-colors">
-                <span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+            <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-colors">
+                <span class="material-symbols-outlined mb-1">dashboard</span>
                 <span class="font-caption text-caption">Home</span>
             </a>
-            <a href="{{ route('recipes.index') }}" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-colors">
-                <span class="material-symbols-outlined mb-1">restaurant_menu</span>
-                <span class="font-caption text-caption">Recipes</span>
+            <a href="{{ route('recipes.browse') }}" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-colors">
+                <span class="material-symbols-outlined mb-1">explore</span>
+                <span class="font-caption text-caption">Browse</span>
             </a>
             <a href="{{ route('generations.create') }}" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-colors">
                 <span class="material-symbols-outlined mb-1">auto_awesome</span>
