@@ -123,7 +123,14 @@ class RecipeWebController extends Controller
         $ratingAvg = $ratingAvg === null ? null : round((float) $ratingAvg, 1);
         $ratingCount = $recipe->avis->count();
 
-        return view('recipes.show', compact('recipe', 'favorite', 'userReview', 'ratingAvg', 'ratingCount'));
+        $user = $request->user();
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('recipes.show', compact('recipe', 'favorite', 'userReview', 'ratingAvg', 'ratingCount', 'user', 'initials'));
     }
 
     public function edit(Request $request, Recette $recipe): View

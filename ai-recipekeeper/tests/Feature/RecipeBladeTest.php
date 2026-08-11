@@ -222,4 +222,58 @@ class RecipeBladeTest extends TestCase
 
         $this->assertDatabaseMissing('recettes', ['id' => $recipe->id]);
     }
+
+    public function test_recipe_detail_shows_full_recipe_data(): void
+    {
+        $user = User::factory()->create();
+        $recipe = Recette::factory()->create();
+        $category = Category::factory()->create(['name' => 'Pescatarian']);
+        $ingredient = Ingredient::create(['name' => 'Salmon', 'unit' => 'fillets']);
+
+        $recipe->categories()->attach($category);
+        $recipe->ingredients()->attach($ingredient, ['quantity' => '4', 'unit' => 'fillets']);
+        $recipe->etapes()->createMany([
+            ['step_number' => 1, 'instruction' => 'Preheat the oven.'],
+            ['step_number' => 2, 'instruction' => 'Season the salmon.'],
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('recipes.show', $recipe))
+            ->assertOk()
+            ->assertSee($recipe->title)
+            ->assertSeeInOrder(['Prep', $recipe->prep_time . ' min'])
+            ->assertSeeInOrder(['Cook', $recipe->cook_time . ' min'])
+            ->assertSeeInOrder(['Servings', (string) $recipe->servings])
+            ->assertSeeInOrder(['Difficulty', $recipe->difficulty])
+            ->assertSee('Ingredients')
+            ->assertSee('Salmon')
+            ->assertSee('fillets')
+            ->assertSee('Preparation Steps')
+            ->assertSee('01')
+            ->assertSee('Preheat the oven.')
+            ->assertSee('Pescatarian');
+    }
+
+    public function test_recipe_detail_shows_fallback_and_no_reviews_state(): void
+    {
+        $user = User::factory()->create();
+        $recipe = Recette::factory()->create(['image_path' => null]);
+
+        $this->actingAs($user)
+            ->get(route('recipes.show', $recipe))
+            ->assertOk()
+            ->assertSee('No reviews yet');
+    }
+
+    public function test_owner_sees_hidden_badge_on_own_hidden_recipe(): void
+    {
+        $user = User::factory()->create();
+        $recipe = Recette::factory()->hidden()->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->get(route('recipes.show', $recipe))
+            ->assertOk()
+            ->assertSee('Hidden')
+            ->assertDontSee('Published');
+    }
 }
