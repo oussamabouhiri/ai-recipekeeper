@@ -11,7 +11,14 @@ class GenerationWebController extends Controller
 {
     public function create()
     {
-        return view('generations.create');
+        $user = auth()->user();
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('generations.create', compact('user', 'initials'));
     }
 
     public function store(Request $request)
