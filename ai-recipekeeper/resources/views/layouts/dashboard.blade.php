@@ -22,7 +22,7 @@
                     <a href="{{ route('recipes.browse') }}" class="text-on-surface-variant hover:text-primary transition-colors">Browse</a>
                     <a href="{{ route('recipes.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">My Recipes</a>
                     <a href="{{ route('generations.create') }}" class="text-on-surface-variant hover:text-primary transition-colors">Generate with AI</a>
-                    <a href="{{ route('favorites.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">My Favorites</a>
+                    <a href="{{ route('favorites.index') }}" class="{{ request()->routeIs('favorites.index') ? 'text-primary font-semibold border-b-2 border-primary pb-1' : 'text-on-surface-variant hover:text-primary transition-colors' }}">My Favorites</a>
                 </nav>
             </div>
             <div class="flex items-center gap-4">
@@ -81,9 +81,9 @@
                 <span class="material-symbols-outlined mb-1">auto_awesome</span>
                 <span class="font-caption text-caption">AI Gen</span>
             </a>
-            <a href="{{ route('favorites.index') }}" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-colors">
-                <span class="material-symbols-outlined mb-1">favorite</span>
-                <span class="font-caption text-caption">Favs</span>
+            <a href="{{ route('favorites.index') }}" class="flex flex-col items-center justify-center {{ request()->routeIs('favorites.index') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant' }} px-4 py-1 rounded-xl transition-colors">
+                <span class="material-symbols-outlined mb-1" {{ request()->routeIs('favorites.index') ? "style=\"font-variation-settings: 'FILL' 1;\"" : '' }}>favorite</span>
+                <span class="font-caption text-caption {{ request()->routeIs('favorites.index') ? 'font-bold' : '' }}">Favs</span>
             </a>
         </div>
     </nav>
