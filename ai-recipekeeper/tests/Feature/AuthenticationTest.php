@@ -123,7 +123,7 @@ class AuthenticationTest extends TestCase
     {
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('app-D-eFHVWS.css')
+            ->assertSee('/build/assets/app-')
             ->assertDontSee('bootstrap@5');
     }
 
@@ -131,7 +131,7 @@ class AuthenticationTest extends TestCase
     {
         $this->get(route('register'))
             ->assertOk()
-            ->assertSee('app-D-eFHVWS.css')
+            ->assertSee('/build/assets/app-')
             ->assertDontSee('bootstrap@5');
     }
 
