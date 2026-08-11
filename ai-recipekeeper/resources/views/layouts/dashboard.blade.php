@@ -41,7 +41,7 @@
         </div>
     </header>
 
-    <main class="flex-grow w-full max-w-7xl mx-auto px-6 py-8 md:py-12 flex flex-col gap-12 pb-24 md:pb-12">
+    <main class="grow w-full max-w-7xl mx-auto px-6 py-8 md:py-12 flex flex-col gap-12 pb-24 md:pb-12">
         @if (session('success'))
             <div class="rounded-lg bg-primary-container/10 border border-primary-container/30 p-4 text-on-surface text-body-md">
                 {{ session('success') }}
