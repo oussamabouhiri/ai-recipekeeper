@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFavoriteRequest;
+use App\Models\Category;
 use App\Models\Favori;
 use App\Models\Recette;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -16,12 +17,34 @@ class FavoriWebController extends Controller
 
     public function index(Request $request): View
     {
-        $favoris = $request->user()->favoris()
-            ->with('recette.user', 'recette.categories')
-            ->latest()
-            ->paginate();
+        $search = $request->input('search');
+        $categoryId = $request->input('category');
 
-        return view('favorites.index', compact('favoris'));
+        $favoris = $request->user()->favoris()
+            ->with('recette.user', 'recette.categories', 'recette.avis')
+            ->when($search, fn ($q, $s) => $q->whereHas('recette', fn ($r) => $r
+                ->where('title', 'like', "%{$s}%")
+                ->orWhere('description', 'like', "%{$s}%")
+            ))
+            ->when($categoryId, fn ($q, $id) => $q->whereHas('recette.categories', fn ($c) => $c
+                ->where('categories.id', $id)
+            ))
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        $categories = Category::whereHas('recettes.favoris', fn ($q) => $q
+            ->where('user_id', $request->user()->id)
+        )->orderBy('name')->get();
+
+        $user = $request->user();
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('favorites.index', compact('favoris', 'categories', 'search', 'user', 'initials'));
     }
 
     public function store(StoreFavoriteRequest $request): RedirectResponse
