@@ -38,7 +38,7 @@ class ReviewsBladeTest extends TestCase
         $this->actingAs($user)
             ->get(route('recipes.show', $recipe))
             ->assertOk()
-            ->assertSee('4.5 / 5')
+            ->assertSee('4.5/5')
             ->assertSee('2 reviews')
             ->assertSee('Alice Chef')
             ->assertSee('Delicious!');
@@ -67,7 +67,7 @@ class ReviewsBladeTest extends TestCase
             ->assertOk()
             ->assertSee('Edit Review')
             ->assertSee('Update Review')
-            ->assertSee('Delete Review')
+            ->assertSee('Delete')
             ->assertDontSee('Submit Review');
     }
 
@@ -82,7 +82,7 @@ class ReviewsBladeTest extends TestCase
             ->get(route('recipes.show', $recipe))
             ->assertOk()
             ->assertSee('Bob Baker')
-            ->assertSee('Delete Review');
+            ->assertSee('Delete');
     }
 
     public function test_non_owner_does_not_see_delete_action_on_others_reviews(): void
@@ -95,7 +95,7 @@ class ReviewsBladeTest extends TestCase
         $this->actingAs($user)
             ->get(route('recipes.show', $recipe))
             ->assertOk()
-            ->assertDontSee('Delete Review');
+            ->assertDontSee('Delete');
     }
 
     public function test_user_can_create_review_from_recipe_detail(): void

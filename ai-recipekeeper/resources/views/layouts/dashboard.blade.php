@@ -43,8 +43,13 @@
 
     <main class="grow w-full max-w-7xl mx-auto px-6 py-8 md:py-12 flex flex-col gap-12 pb-24 md:pb-12">
         @if (session('success'))
-            <div class="rounded-lg bg-primary-container/10 border border-primary-container/30 p-4 text-on-surface text-body-md">
-                {{ session('success') }}
+            <div id="app-notification" class="notification relative overflow-hidden bg-primary-container/90 text-on-primary-container rounded-full px-5 py-2 text-label-md shadow-sm flex items-center gap-2 w-fit mx-auto selection:bg-transparent" role="status">
+                <span class="relative flex w-2 h-2 shrink-0" aria-hidden="true">
+                    <span class="absolute inline-flex w-full h-full rounded-full bg-primary opacity-75 animate-ping"></span>
+                    <span class="relative inline-flex w-2 h-2 rounded-full bg-primary"></span>
+                </span>
+                <span class="notification-message">{{ session('success') }}</span>
+                <span class="notification-timer" aria-hidden="true"></span>
             </div>
         @endif
 
