@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class RecipeWebController extends Controller
@@ -64,12 +65,19 @@ class RecipeWebController extends Controller
         return view('recipes.browse', compact('recipes', 'categories', 'favoriteIds', 'favoriteMap', 'search', 'user', 'initials'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $categories = Category::all();
         $ingredients = Ingredient::all();
 
-        return view('recipes.create', compact('categories', 'ingredients'));
+        $user = $request->user();
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('recipes.create', compact('categories', 'ingredients', 'user', 'initials'));
     }
 
     public function store(StoreRecetteRequest $request): RedirectResponse
@@ -77,6 +85,15 @@ class RecipeWebController extends Controller
         $recipe = DB::transaction(function () use ($request) {
             $attributes = $request->validated();
             unset($attributes['etapes'], $attributes['ingredients'], $attributes['categories']);
+
+            if ($request->hasFile('image_path')) {
+                $file = $request->file('image_path');
+                $filename = Str::slug($request->input('title', 'recipe')) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images/recipes'), $filename);
+                $attributes['image_path'] = 'images/recipes/' . $filename;
+            } else {
+                unset($attributes['image_path']);
+            }
 
             $attributes['user_id'] = $request->user()->id;
             $attributes['is_ai_generated'] = false;
@@ -109,7 +126,7 @@ class RecipeWebController extends Controller
         return view('recipes.show', compact('recipe', 'favorite', 'userReview', 'ratingAvg', 'ratingCount'));
     }
 
-    public function edit(Recette $recipe): View
+    public function edit(Request $request, Recette $recipe): View
     {
         $this->authorize('update', $recipe);
 
@@ -117,7 +134,14 @@ class RecipeWebController extends Controller
         $categories = Category::all();
         $ingredients = Ingredient::all();
 
-        return view('recipes.edit', compact('recipe', 'categories', 'ingredients'));
+        $user = $request->user();
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('recipes.edit', compact('recipe', 'categories', 'ingredients', 'user', 'initials'));
     }
 
     public function update(UpdateRecetteRequest $request, Recette $recipe): RedirectResponse
@@ -127,6 +151,17 @@ class RecipeWebController extends Controller
         DB::transaction(function () use ($request, $recipe) {
             $attributes = $request->validated();
             unset($attributes['etapes'], $attributes['ingredients'], $attributes['categories']);
+
+            if ($request->hasFile('image_path')) {
+                $file = $request->file('image_path');
+                $filename = Str::slug($request->input('title', 'recipe')) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images/recipes'), $filename);
+                $attributes['image_path'] = 'images/recipes/' . $filename;
+            } elseif ($request->input('image_path_delete') === '1') {
+                $attributes['image_path'] = null;
+            } else {
+                unset($attributes['image_path']);
+            }
 
             $recipe->update($attributes);
             $this->syncRelations($recipe, $request->validated());
