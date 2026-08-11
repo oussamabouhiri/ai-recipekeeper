@@ -7,10 +7,15 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriWebController;
 use App\Http\Controllers\GenerationWebController;
 use App\Http\Controllers\RecipeWebController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return redirect()->route('login');
 });
 
 Route::middleware('guest')->group(function () {

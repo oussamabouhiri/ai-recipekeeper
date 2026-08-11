@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'AI Recipe Keeper') - AI Recipe Keeper</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-light min-vh-100 d-flex flex-column">
+<body class="bg-background min-h-screen flex items-center justify-center p-6 font-body-md text-on-background antialiased" style="background-image: url('{{ asset('images/auth/image.png') }}'); background-size: cover; background-position: center center; background-repeat: no-repeat; background-attachment: fixed;">
 
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center p-3">
-        <div class="w-100" style="max-width: 440px;">
-            <div class="text-center mb-4">
-                <h1 class="h3 fw-bold">AI Recipe Keeper</h1>
-                <p class="text-muted mb-0">@yield('subtitle')</p>
+    <main class="w-full max-w-md relative z-10">
+        @if (session('status'))
+            <div class="mb-4 rounded-lg bg-primary-container/10 border border-primary-container/30 p-4 text-on-surface text-body-md">
+                {{ session('status') }}
             </div>
-            @if (session('status'))
-                <div class="alert alert-success" role="alert">{{ session('status') }}</div>
-            @endif
-            @yield('content')
-        </div>
+        @endif
+        @yield('content')
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

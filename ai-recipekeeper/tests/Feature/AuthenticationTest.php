@@ -14,7 +14,7 @@ class AuthenticationTest extends TestCase
     {
         $this->get(route('register'))
             ->assertOk()
-            ->assertSee('Create your account');
+            ->assertSee('Join the Kitchen');
     }
 
     public function test_registration_creates_a_user_with_user_role(): void
@@ -78,7 +78,7 @@ class AuthenticationTest extends TestCase
     {
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('Sign in to your account');
+            ->assertSee('Welcome back to your kitchen');
     }
 
     public function test_login_with_valid_credentials(): void
@@ -117,5 +117,64 @@ class AuthenticationTest extends TestCase
             ->assertRedirect('/login');
 
         $this->assertGuest();
+    }
+
+    public function test_login_page_renders_with_tailwind(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('app-D-eFHVWS.css')
+            ->assertDontSee('bootstrap@5');
+    }
+
+    public function test_register_page_renders_with_tailwind(): void
+    {
+        $this->get(route('register'))
+            ->assertOk()
+            ->assertSee('app-D-eFHVWS.css')
+            ->assertDontSee('bootstrap@5');
+    }
+
+    public function test_root_guest_redirects_to_login(): void
+    {
+        $this->get('/')->assertRedirect(route('login'));
+    }
+
+    public function test_root_authenticated_redirects_to_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get('/')
+            ->assertRedirect(route('dashboard'));
+    }
+
+    public function test_login_page_has_password_toggle(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('data-toggle-password', false);
+    }
+
+    public function test_register_page_has_password_toggles(): void
+    {
+        $response = $this->get(route('register'))->assertOk();
+        $content = $response->getContent();
+        $this->assertStringContainsString('data-toggle-password="password"', $content);
+        $this->assertStringContainsString('data-toggle-password="password_confirmation"', $content);
+    }
+
+    public function test_login_page_shows_auth_background_image(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('images/auth/image.png');
+    }
+
+    public function test_register_page_shows_auth_background_image(): void
+    {
+        $this->get(route('register'))
+            ->assertOk()
+            ->assertSee('images/auth/image.png');
     }
 }
