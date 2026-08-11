@@ -19,13 +19,49 @@ class RecipeWebController extends Controller
 
     public function index(Request $request): View
     {
+        $user = $request->user();
+
         $recipes = Recette::query()
-            ->visibleTo($request->user())
+            ->where('user_id', $user->id)
             ->with(['user', 'categories'])
             ->latest()
             ->paginate();
 
-        return view('recipes.index', compact('recipes'));
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('recipes.index', compact('recipes', 'user', 'initials'));
+    }
+
+    public function browse(Request $request): View
+    {
+        $search = $request->input('search');
+        $categoryId = $request->input('category');
+
+        $recipes = Recette::query()
+            ->visibleTo($request->user())
+            ->with(['categories', 'favoris'])
+            ->when($search, fn ($q, $s) => $q->where(fn ($w) => $w->where('title', 'like', "%{$s}%")->orWhere('description', 'like', "%{$s}%")))
+            ->when($categoryId, fn ($q, $id) => $q->whereHas('categories', fn ($c) => $c->where('categories.id', $id)))
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+        $favoriteIds = $request->user()->favoris()->pluck('recette_id');
+        $favoriteMap = $request->user()->favoris()->get()->mapWithKeys(fn ($f) => [$f->recette_id => $f]);
+
+        $user = $request->user();
+        $initials = collect(explode(' ', trim($user->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
+
+        return view('recipes.browse', compact('recipes', 'categories', 'favoriteIds', 'favoriteMap', 'search', 'user', 'initials'));
     }
 
     public function create(): View
