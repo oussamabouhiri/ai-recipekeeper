@@ -38,4 +38,8 @@ COPY . .
 EXPOSE 8000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# --no-reload: without it, Laravel 13's serve command strips every env var
+# not on its passthrough whitelist from the php -S child process, so the
+# server falls back to .env values (e.g. DB_HOST=127.0.0.1) instead of the
+# container environment (DB_HOST=mysql).
+CMD ["php", "artisan", "serve", "--no-reload", "--host=0.0.0.0", "--port=8000"]
