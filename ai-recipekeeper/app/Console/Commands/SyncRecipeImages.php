@@ -34,6 +34,18 @@ class SyncRecipeImages extends Command
 
         File::ensureDirectoryExists($targetDir);
 
+        // Remove known orphan test images that don't correspond to any recipe
+        $orphanNames = ['dfasfds', 'hello-recipe-test', 'hello-world', 'traditional-moroccan-goat-tajine-sossi'];
+        foreach ($orphanNames as $name) {
+            foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
+                $orphanPath = $targetDir.'/'.$name.'.'.$ext;
+                if (File::exists($orphanPath)) {
+                    File::delete($orphanPath);
+                    $this->info("Removed orphan image: {$name}.{$ext}");
+                }
+            }
+        }
+
         $sources = collect(File::files($sourceDir))
             ->keyBy(fn (\SplFileInfo $file) => Str::slug(pathinfo($file->getFilename(), PATHINFO_FILENAME)));
 

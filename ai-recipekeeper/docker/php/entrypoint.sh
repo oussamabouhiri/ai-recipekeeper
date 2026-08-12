@@ -27,6 +27,17 @@ php artisan storage:link --force >/dev/null 2>&1 || true
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "Running migrations..."
     php artisan migrate --force
+
+    # Seed demo data on a fresh database (no recipes yet)
+    RECIPE_COUNT=$(php artisan tinker --execute="echo \App\Models\Recette::count();" 2>/dev/null || echo "0")
+    if [ "$RECIPE_COUNT" = "0" ]; then
+        echo "Empty database detected — seeding demo data..."
+        php artisan db:seed --force
+        php artisan recipe:sync-images
+        echo "Demo data seeded successfully."
+    else
+        echo "Database already contains recipes — skipping seed."
+    fi
 fi
 
 exec "$@"
