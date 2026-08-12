@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Sail alias for Windows (MINGW64) - wraps docker compose exec
+# Usage: ./sail artisan <command>
+
+set -euo pipefail
+
+DOCKER_COMPOSE="docker compose"
+
+# If the container isn't running, start it
+if ! $DOCKER_COMPOSE ps app 2>/dev/null | grep -q "Up"; then
+    echo "Starting containers..."
+    $DOCKER_COMPOSE up -d
+    sleep 3
+fi
+
+# Run the command inside the app container
+$DOCKER_COMPOSE exec app php "$@"
