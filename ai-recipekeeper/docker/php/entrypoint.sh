@@ -11,8 +11,10 @@ if ! grep -q '^APP_KEY=' .env; then
     php artisan key:generate --force
 fi
 
-# Install dependencies when the bootstrap volumes are empty
-if [ ! -f vendor/autoload.php ]; then
+# Install dependencies when the bootstrap volumes are empty.
+# Only the app service bootstraps (RUN_MIGRATIONS=true): the queue-worker
+# shares the vendor volume and must not race composer install.
+if [ ! -f vendor/autoload.php ] && [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "Installing Composer dependencies..."
     composer install --no-interaction --prefer-dist --no-progress
 fi

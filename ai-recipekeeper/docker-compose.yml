@@ -47,6 +47,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      cache_from:
+        - ai-recipekeeper:dev
     image: ai-recipekeeper:dev
     command: ["php", "artisan", "queue:work", "redis", "--queue=generations", "--tries=3", "--timeout=120", "--sleep=3", "--max-time=3600"]
     environment:
@@ -74,6 +76,8 @@ services:
       - vendor:/var/www/html/vendor
       - node_modules:/var/www/html/node_modules
     depends_on:
+      app:
+        condition: service_healthy
       mysql:
         condition: service_healthy
       redis:
