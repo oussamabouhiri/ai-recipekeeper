@@ -48,7 +48,7 @@ class SyncRecipeImages extends Command
             }
 
             $extension = strtolower(pathinfo($source->getFilename(), PATHINFO_EXTENSION));
-            $relative = "images/recipes/" . Str::slug($recipe->title) . ".{$extension}";
+            $relative = 'images/recipes/'.Str::slug($recipe->title).".{$extension}";
             $target = public_path($relative);
 
             if (! File::exists($target)) {

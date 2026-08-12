@@ -88,9 +88,9 @@ class RecipeWebController extends Controller
 
             if ($request->hasFile('image_path')) {
                 $file = $request->file('image_path');
-                $filename = Str::slug($request->input('title', 'recipe')) . '.' . $file->getClientOriginalExtension();
+                $filename = Str::slug($request->input('title', 'recipe')).'.'.$file->getClientOriginalExtension();
                 $file->move(public_path('images/recipes'), $filename);
-                $attributes['image_path'] = 'images/recipes/' . $filename;
+                $attributes['image_path'] = 'images/recipes/'.$filename;
             } else {
                 unset($attributes['image_path']);
             }
@@ -161,9 +161,9 @@ class RecipeWebController extends Controller
 
             if ($request->hasFile('image_path')) {
                 $file = $request->file('image_path');
-                $filename = Str::slug($request->input('title', 'recipe')) . '.' . $file->getClientOriginalExtension();
+                $filename = Str::slug($request->input('title', 'recipe')).'.'.$file->getClientOriginalExtension();
                 $file->move(public_path('images/recipes'), $filename);
-                $attributes['image_path'] = 'images/recipes/' . $filename;
+                $attributes['image_path'] = 'images/recipes/'.$filename;
             } elseif ($request->input('image_path_delete') === '1') {
                 $attributes['image_path'] = null;
             } else {
