@@ -44,6 +44,9 @@ services:
     restart: unless-stopped
 
   queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: ai-recipekeeper:dev
     command: ["php", "artisan", "queue:work", "redis", "--queue=generations", "--tries=3", "--timeout=120", "--sleep=3", "--max-time=3600"]
     environment:
