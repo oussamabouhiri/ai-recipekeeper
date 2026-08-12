@@ -12,8 +12,8 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Run `./sail artisan migrate && ./sail artisan db:seed --force && ./sail artisan recipe:sync-images` on an empty database and verify 26 recipes, 12 categories, and 26 images present
-- [ ] 3.2 Restart the container (`docker compose restart app`) and verify seeding is skipped — recipe count remains 26, no duplicates
-- [ ] 3.3 Start the app (`docker compose up`) and verify the browse page renders recipe cards with images (HTTP 200 for image URLs)
-- [ ] 3.4 Verify the 4 orphan files are removed from `public/images/recipes/`
-- [ ] 3.5 Create a user account, add a recipe, restart the container — verify the user recipe is preserved
+- [x] 3.1 Run `./sail artisan migrate && ./sail artisan db:seed --force && ./sail artisan recipe:sync-images` on an empty database and verify 26 recipes, 12 categories, and 26 images present
+- [x] 3.2 Restart the container (`docker compose restart app`) and verify seeding is skipped — recipe count remains 26, no duplicates
+- [x] 3.3 Start the app (`docker compose up`) and verify the browse page renders recipe cards with images (HTTP 200 for image URLs)
+- [x] 3.4 Verify the 4 orphan files are removed from `public/images/recipes/`
+- [x] 3.5 Create a user account, add a recipe, restart the container — verify the user recipe is preserved
