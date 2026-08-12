@@ -1,0 +1,107 @@
+## Context
+
+See proposal.md — Why for motivation. Current state that shapes the approach:
+
+- Laravel 13.24 on PHP `^8.3`; exploration verified that `config/database.php` references the PHP 8.4-native `Pdo\Mysql` class, which works on the local custom PHP 8.3 build but is absent on stock builds — containers and CI will use **PHP 8.4** (all locked packages accept it).
+- App is env-driven: queue, cache, sessions, and database backends are configured through `.env` (`config/queue.php`, `config/database.php`, `config/cache.php`), so the containerized environment needs **zero application code changes**.
+- Tests run on SQLite in-memory + sync queue via `phpunit.xml`; the suite (249 tests) needs no MySQL/Redis/API key. Local bare-metal dev uses `QUEUE_CONNECTION=database`; containers will use Redis as intended.
+- No Docker or CI infrastructure exists; branch `chore/setup-ci-cd-pipeline` is the working branch.
+- `composer.lock` and `package-lock.json` are committed; `vendor/`, `node_modules/`, `.env`, `public/build` are gitignored.
+- Vite 8 (`laravel-vite-plugin` + Tailwind 4 + bunny fonts plugin) requires Node ≥ 20.19/22.12 — Node 22 everywhere.
+
+## Goals / Non-Goals
+
+**Goals:**
+- One-command containerized dev environment (`docker compose up`) on Windows + Docker Desktop + WSL2: app on :8000, Vite on :5173, MySQL 8.4, Redis 7, queue worker on `generations`.
+- Dockerfile shaped for a later production multi-stage migration (single stage now, explicit seams: no dev-only packages, entrypoint handles prod steps like migrations).
+- CI on every push/PR: composer install (cached), `npm ci` + `npm run build`, `pint --test`, `composer test` — no external services, no secrets.
+
+**Non-Goals:**
+- No production image registry, deployment workflow, or CD pipeline (deferred to a separate change).
+- No nginx/Swoole/Octane; dev serves via `php artisan serve` inside the container (matches the existing `composer dev` workflow). FPM + nginx belongs to the future prod stage.
+- No changes to application code, schema, UI, or AI generation logic.
+- No PHP version matrix in CI (single supported runtime: 8.4).
+
+## Decisions
+
+### D1. Base image: `php:8.4-cli` (Debian) for the application image
+Single-stage dev image: PHP 8.4 CLI + extensions + source copy; the container serves via `php artisan serve --host=0.0.0.0 --port=8000` (see D4).
+- Why 8.4: native `Pdo\Mysql` (satisfies `config/database.php`); compatible with framework `^8.3`, laravel/ai `^8.3`, phpunit `>=8.3`.
+- Why Debian over Alpine: first-party binary availability for `intl`/`gd`-adjacent needs and simpler `pecl install redis`; Alpine stays a future prod-stage optimization.
+- Alternatives: `php:8.3` was rejected (Pdo\Mysql risk verified during exploration); Laravel Sail images were rejected (heavier, and the team wants explicit Compose control).
+
+### D2. Extensions via `docker-php-ext-install` + PECL, plus curl binary
+`pdo_mysql`, `sqlite3`/`pdo_sqlite`, `intl`, `mbstring`, `socket`/`zip` not required — install: `pdo_mysql`, `sqlite3`, `intl`, `mbstring`, `redis` (PECL, required by `REDIS_CLIENT=phpredis`), and the `curl` CLI package (used by the app service healthcheck and by entrypoint wait logic).
+- Explicitly **not** installing `xdebug`, `pcov`, or `opcache`-as-extension for the dev image; `opcache.ini` ships in `docker/php/php.ini` disabled by default so the future prod stage can enable it via env.
+
+### D3. Compose topology: five services, two PHP containers from the same image
+```
+docker-compose.yml
+├─ app          php:8.4 build .        ports 8000:8000   (artisan serve)
+├─ queue-worker same image             command: php artisan queue:work redis --queue=generations --tries=3 --timeout=120
+├─ mysql        mysql:8.4              volume db_data:/var/lib/mysql   healthcheck
+├─ redis        redis:7-alpine         healthcheck
+└─ vite         node:22-alpine         ports 5173:5173   (npm run dev -- --host)
+```
+- `depends_on: condition: service_healthy` for mysql/redis so the app never boots before its backends.
+- Named volumes: `db_data` (MySQL persistence), `vendor` and `node_modules` (bind-mount the repo but let the containers populate `/var/www/html/vendor` and `/var/www/html/node_modules` as anonymous-bootstrap volumes — content copied in at first start). The repo is bind-mounted for live code.
+- Alternative considered: bind-mounting host `vendor/`/`node_modules/` directly — rejected on Windows (file-watching churn, path-length/permission issues, host/container PHP-version mismatch).
+
+### D4. Web serving: `php artisan serve` in the app container
+Keeps parity with the existing `composer dev` workflow (`php artisan serve`), avoids nginx complexity in dev, and keeps one fewer moving part.
+- The queue worker runs the same image with a different command — exactly what the future prod deployment will do (same image, multiple roles).
+
+### D5. Environment wiring: Compose `environment:` block, `.env` stays host-side and gitignored
+Compose injects `APP_KEY` (generated by entrypoint if missing), `DB_HOST=mysql`, `DB_USERNAME`/`DB_PASSWORD` (compose defaults aligned with MySQL image env), `DB_DATABASE=ai_recipekeeper`, `REDIS_HOST=redis`, `REDIS_PORT=6379`, `QUEUE_CONNECTION=redis`, `REDIS_QUEUE=generations`, `APP_URL=http://localhost:8000`, `APP_ENV=local`, `APP_DEBUG=true`.
+- Docker-only values are documented in `.env.example` as commented alternatives so host-run and container-run coexist.
+- `OPENROUTER_API_KEY`, `MAIL_*`, etc. pass through from the host `.env` where set; unset values are harmless in dev.
+
+### D6. Entrypoint responsibilities (`docker/php/entrypoint.sh`, LF line endings)
+1. If `APP_KEY` empty → `php artisan key:generate --force`.
+2. Ensure writable storage: `chmod -R ug+rwX storage bootstrap/cache` (bind mounts on Windows make uid mapping unreliable; staying root in the dev image simplifies, with non-root explicitly deferred to prod hardening).
+3. `php artisan storage:link` (idempotent).
+4. `php artisan migrate --force` (idempotent; runs only in the app container via an env flag `RUN_MIGRATIONS=true` if the future topology needs to disable it).
+5. `exec` the passed command (`artisan serve` / `queue:work`).
+
+### D7. Vite in a Node container
+`node:22-alpine` runs `npm run dev -- --host 0.0.0.0`. Two config touches in `vite.config.js`:
+- `server.host: true`, `server.port: 5173` — required so the container accepts connections.
+- `server.hmr: { host: 'localhost' }` so the browser reaches the HMR websocket on the published port (file watching on WSL2-backed mounts is native; a polling fallback note is added for legacy setups).
+- The `public/hot` file (written by the Vite container into the shared bind mount) is what makes Laravel's `@vite` directive point at the dev server. No app code changes.
+
+### D8. CI: single job, `ubuntu-latest`, no services
+Workflow `ci.yml` on `push` + `pull_request` (branches `main`, `develop`, `feature/*`, `fix/*`, `hotfix/*`, `chore/*` per GitFlow), `concurrency` cancel-in-progress, `permissions: contents: read`.
+Steps:
+1. `shivammathur/setup-php@v2` — PHP 8.4, `extensions: pdo_mysql, sqlite, intl, mbstring`, `coverage: none`, `cache: composer` (composer.lock-driven caching).
+2. `actions/setup-node@v4` — Node 22, `cache: npm`.
+3. `composer install --no-interaction --prefer-dist --no-progress` (post-autoload scripts run `package:discover` — safe without `.env`).
+4. `npm ci` then `npm run build` (needs network for the bunny-fonts fetch).
+5. `php artisan key:generate --ansi` (phpunit.xml does not define APP_KEY).
+6. `vendor/bin/pint --test` (quality gate).
+7. `composer test` (runs `config:clear` + `artisan test`).
+- No mysql/redis services, no `OPENROUTER_API_KEY` — the suite is synchronous + SQLite in-memory by design.
+- Alternative considered: Docker-in-CI (`docker compose run`) — slower and redundant for a pure-PHP suite; deferred to whatever CD later needs via a separate job.
+
+### D9. `.dockerignore`
+Excludes `.git`, `.env*` (all env variants, keeping secrets out of the build context), `vendor`, `node_modules`, `storage/*.log*`, `.phpunit.cache`, `openspec/`, `Images/` (recipe images are already committed under `public/images/recipes`), `files/`, `public/build`.
+
+## Risks / Trade-offs
+
+- [Stock PHP 8.4 images are a new minor version for the team] → All dependencies verified against `^8.3`/`>=8.3`; CI exercises 8.4 on every commit.
+- [Bind-mounted storage on Windows: permissions/uid noise] → Entrypoint normalizes `ug+rwX` on storage/bootstrap-cache; images stay root-led in dev, non-root documented for prod.
+- [`vendor`/`node_modules` named volumes hide host-side installs] → Changes require `docker compose build`/`up` re-copy; documented in README ("clear volumes" command). WSL2-mounted volume performance is acceptable.
+- [Migration runs in the app entrypoint; worker starts before app finishes migrating] → Worker has `depends_on` the app service startup and jobs only appear when the web app is used; entrypoint migrate is idempotent. Dedicated migrate step is the documented alternative for teams that want it.
+- [HMR/file-watching on non-WSL2 Windows mounts needs polling] → Documented fallback (enable `usePolling` in vite.config `server.watch`); WSL2 is the supported path.
+- [Vite font build needs outbound network] → Documented in README + CI assumptions; no offline fallback in scope.
+- [CI no longer catches MySQL-only SQL remotely] → Local Docker gives every dev a real MySQL; CI deliberately mirrors the test config (SQLite), matching the existing spec (`queue-and-jobs`, test driver sync).
+
+## Migration Plan
+
+- Landing the change adds opt-in infrastructure: `composer dev` (bare-metal) keeps working unchanged; README documents `docker compose up --build` as the recommended path.
+- No production impact; rollback is `git revert` of the infra commit. No data migration.
+- Enable CI first (workflow lands with the change and starts validating PRs immediately).
+
+## Open Questions
+
+- Should a later CD change also run a Docker smoke test in CI (build image, compose up, hit `/up`)? Deferred — it does not affect this spec, this design, or the task breakdown.
+- Whether the future prod stage runs FPM+nginx or Octane — deferred, the Dockerfile's single-stage seam keeps it an additive change either way.

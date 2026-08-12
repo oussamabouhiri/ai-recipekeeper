@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+      - fix/*
+      - hotfix/*
+      - chore/*
+  pull_request:
+    branches:
+      - main
+      - develop
+      - feature/*
+      - fix/*
+      - hotfix/*
+      - chore/*
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP 8.4
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-recipekeeper
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, sqlite, intl, mbstring
+          coverage: none
+          cache: composer
+          cache-dependency-path: ai-recipekeeper/composer.lock
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ai-recipekeeper/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Generate application key
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+
+      - name: Check code style
+        run: vendor/bin/pint --test
+
+      - name: Run tests
+        run: composer test

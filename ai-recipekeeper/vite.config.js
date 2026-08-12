@@ -17,8 +17,15 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        // Container/docker reachable dev server
+        host: true,
+        port: 5173,
+        hmr: {
+            host: 'localhost',
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
+            // usePolling: true, // enable for non-WSL2 Windows bind mounts
         },
     },
 });

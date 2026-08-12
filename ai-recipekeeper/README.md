@@ -13,6 +13,58 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
 - [Powerful dependency injection container](https://laravel.com/docs/container).
+
+## Docker Development
+
+### Prerequisites
+
+- Docker Desktop with the WSL2 backend (Windows) or Docker Engine (Linux/macOS).
+- No local PHP, Composer, Node, MySQL, or Redis installation is required.
+
+### Getting started
+
+```bash
+docker compose up --build
+```
+
+- Application: http://localhost:8000 (health check at http://localhost:8000/up)
+- Vite dev server (HMR): http://localhost:5173
+- MySQL and Redis run inside the Docker network only.
+
+On first start the entrypoint generates an application key (if missing),
+installs Composer dependencies into the `vendor` volume, links storage, and
+runs migrations. A queue worker container processes the `generations`
+queue, so AI recipe generation runs asynchronously.
+
+The `queue-worker` requires an `OPENROUTER_API_KEY` to perform real AI
+generations; set it in the host `.env` file (bind-mounted into the app) or
+inject it, without committing it.
+
+### Useful commands
+
+```bash
+# Rebuild the images
+docker compose build
+
+# Reset everything (volumes are wiped: database and dependencies)
+docker compose down -v
+
+# Rebuild bootstrap volumes (vendor / node_modules) from scratch
+docker compose up --build -d --force-recreate app vite
+
+# Tail logs
+docker compose logs -f
+```
+
+The bare-metal workflow (`composer setup`, then `composer dev`) remains
+available if Docker is not used.
+
+## Continuous Integration
+
+Pushes and pull requests are checked by GitHub Actions (`.github/workflows/ci.yml`):
+Composer install from the lock file, frontend build (Node 22), Laravel Pint
+style check, and the full PHPUnit suite (SQLite in-memory, no external
+services, no API keys required).
 - Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
 - Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
 - Database agnostic [schema migrations](https://laravel.com/docs/migrations).

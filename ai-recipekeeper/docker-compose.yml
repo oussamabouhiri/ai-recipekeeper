@@ -1,0 +1,124 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ai-recipekeeper:dev
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ai_recipekeeper
+      DB_USERNAME: recipekeeper
+      DB_PASSWORD: secret
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_QUEUE: generations
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      FILESYSTEM_DISK: local
+      LOG_CHANNEL: stack
+      RUN_MIGRATIONS: "true"
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - node_modules:/var/www/html/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  queue-worker:
+    image: ai-recipekeeper:dev
+    command: ["php", "artisan", "queue:work", "redis", "--queue=generations", "--tries=3", "--timeout=120", "--sleep=3", "--max-time=3600"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ai_recipekeeper
+      DB_USERNAME: recipekeeper
+      DB_PASSWORD: secret
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_QUEUE: generations
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      FILESYSTEM_DISK: local
+      LOG_CHANNEL: stack
+      RUN_MIGRATIONS: "false"
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - node_modules:/var/www/html/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ai_recipekeeper
+      MYSQL_USER: recipekeeper
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  vite:
+    image: node:22-alpine
+    working_dir: /var/www/html
+    command: ["sh", "-c", "npm install && npm run dev -- --host 0.0.0.0"]
+    ports:
+      - "5173:5173"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  vendor:
+  node_modules:
