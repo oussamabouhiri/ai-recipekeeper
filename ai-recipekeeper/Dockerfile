@@ -13,7 +13,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # PHP extensions. mbstring and pcntl (queue worker signal handling) are
 # already compiled into the official image.
-RUN docker-php-ext-install intl pdo_mysql sqlite3 \
+# pecl runs in a separate layer: docker-php-ext-install leaves the workdir
+# in /usr/src/php, where pecl cannot find config.m4.
+RUN docker-php-ext-install intl pdo_mysql sqlite3
+
+RUN cd /tmp \
     && pecl install redis \
     && docker-php-ext-enable redis
 
