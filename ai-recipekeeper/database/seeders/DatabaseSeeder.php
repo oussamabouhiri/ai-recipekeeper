@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             IngredientSeeder::class,
             RealRecipeSeeder::class,
+            UserSeeder::class,
             AdminUserSeeder::class,
         ]);
     }
