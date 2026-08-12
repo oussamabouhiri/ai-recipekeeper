@@ -91,6 +91,7 @@ class RealRecipeSeeder extends Seeder
             $this->clafoutisAuxCerises(),
             $this->risottoAuxChampignons(),
             $this->tartareSaumon(),
+            $this->saumonGlaceAuMielEtCarottesRoties(),
         ];
     }
 
@@ -853,6 +854,38 @@ class RealRecipeSeeder extends Seeder
                 'Incorporez délicatement le saumon au mélange.',
                 'Assaisonnez selon votre goût et réfrigérez 30 minutes.',
                 'Servez sur des toasts ou avec une salade verte.',
+            ],
+        ];
+    }
+
+    private function saumonGlaceAuMielEtCarottesRoties(): array
+    {
+        return [
+            'title' => 'Saumon Glacé au Miel et Carottes Rôties',
+            'description' => 'Des pavés de saumon glacés au miel et à la sauce soja, servis avec des carottes rôties au four. Un plat équilibré, sucré-salé et rapide à préparer.',
+            'prep_time' => 15,
+            'cook_time' => 25,
+            'servings' => 4,
+            'difficulty' => 'Facile',
+            'categories' => ['Plat principal', 'Rapide'],
+            'ingredients' => [
+                ['name' => 'Saumon', 'quantity' => '4', 'unit' => 'pavés'],
+                ['name' => 'Miel', 'quantity' => '3', 'unit' => 'c. à soupe'],
+                ['name' => 'Sauce soja', 'quantity' => '3', 'unit' => 'c. à soupe'],
+                ['name' => 'Gingembre', 'quantity' => '1', 'unit' => 'c. à café'],
+                ['name' => 'Carottes', 'quantity' => '500', 'unit' => 'g'],
+                ['name' => 'Huile d\'olive', 'quantity' => '2', 'unit' => 'c. à soupe'],
+                ['name' => 'Citron', 'quantity' => '1', 'unit' => 'jus'],
+                ['name' => 'Sel', 'quantity' => '1', 'unit' => 'pincée'],
+                ['name' => 'Poivre', 'quantity' => '1', 'unit' => 'pincée'],
+            ],
+            'steps' => [
+                'Préchauffez le four à 200 °C. Épluchez les carottes et coupez-les en bâtonnets.',
+                'Mélangez les carottes avec une cuillère à soupe d\'huile d\'olive, salez et poivrez. Disposez-les sur une plaque et enfournez 20 minutes.',
+                'Dans un bol, mélangez le miel, la sauce soja, le gingembre râpé et le jus de citron.',
+                'Badigeonnez les pavés de saumon avec la moitié de la sauce.',
+                'Faites cuire le saumon dans une poêle huilée 3 à 4 minutes par face, en nappant de sauce en fin de cuisson.',
+                'Servez les pavés glacés avec les carottes rôties et un filet de sauce.',
             ],
         ];
     }
